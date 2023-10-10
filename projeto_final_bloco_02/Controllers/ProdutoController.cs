@@ -62,7 +62,7 @@ namespace projeto_final_bloco_02.Controllers
 
             if (Resposta is null)
             {
-                return BadRequest("Produto não encontrado!");
+                return BadRequest("Produto e/ou Categoria não encontrados!");
             }
 
             return CreatedAtAction(nameof(GetById), new { id = produto.Id }, produto);
@@ -87,7 +87,7 @@ namespace projeto_final_bloco_02.Controllers
 
             if (Resposta is null)
             {
-                return NotFound("Produto não encontrado!");
+                return NotFound("Produto e/ou Categoria não encontrados!");
             }
             return Ok(Resposta);
         }

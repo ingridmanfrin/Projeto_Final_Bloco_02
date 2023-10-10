@@ -37,5 +37,6 @@ namespace projeto_final_bloco_02.Model
         [Precision(7, 2)]
         public decimal Preco { get; set; }
 
+        public virtual Categoria? Categoria { get; set; }
     }
 }

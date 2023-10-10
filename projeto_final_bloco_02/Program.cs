@@ -38,9 +38,11 @@ namespace projeto_final_bloco_02
 
             //Registrar a Validações das Entidades 
             builder.Services.AddTransient<IValidator<Produto>, ProdutoValidator>();
+            builder.Services.AddTransient<IValidator<Categoria>, CategoriaValidator>();
 
             //Registrar as Classes de Serviço (Service)
             builder.Services.AddScoped<IProdutoService, ProdutoService>();
+            builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -58,8 +60,16 @@ namespace projeto_final_bloco_02
 
             var app = builder.Build();
 
+
+            //Criar o Banco de Dados e as Tabelas
+            using (var scope = app.Services.CreateAsyncScope()) 
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                dbContext.Database.EnsureCreated();
+            }
+
             // Configure the HTTP request pipeline.
-            
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();

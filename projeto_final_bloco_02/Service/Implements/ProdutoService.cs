@@ -16,6 +16,7 @@ namespace projeto_final_bloco_02.Service.Implements
         public async Task<IEnumerable<Produto>> GetAll()
         {
             return await _context.Produtos
+              .Include(t => t.Categoria)
               .ToListAsync();
         }
 
@@ -24,6 +25,7 @@ namespace projeto_final_bloco_02.Service.Implements
             try
             {
                 var Produto = await _context.Produtos
+                    .Include(produto => produto.Categoria)
                     .FirstAsync(i => i.Id == id);
 
                 return Produto;
@@ -38,6 +40,7 @@ namespace projeto_final_bloco_02.Service.Implements
         {
             return await _context.Produtos
                 .Where(produto => produto.Nome == nome)
+                .Include(p => p.Categoria)
                 .ToListAsync();
         }
 
@@ -45,11 +48,24 @@ namespace projeto_final_bloco_02.Service.Implements
         {
             return await _context.Produtos
                 .Where(produto => produto.Preco >= min && produto.Preco <= max)
+                .Include(p => p.Categoria)
                 .ToListAsync();
         }
 
         public async Task<Produto?> Create(Produto produto)
         {
+            if (produto.Categoria is not null)
+            {
+                var BuscaProduto = await _context.Categorias.FindAsync(produto.Categoria.Id);
+
+                if (BuscaProduto is null)
+                {
+                    return null;
+                }
+
+                produto.Categoria = BuscaProduto;
+            }
+
             await _context.Produtos.AddAsync(produto);
 
             await _context.SaveChangesAsync();
@@ -65,6 +81,18 @@ namespace projeto_final_bloco_02.Service.Implements
             {
                 return null;
             }
+
+            if (produto.Categoria is not null)
+            {
+                var BuscaTema = await _context.Categorias.FindAsync(produto.Categoria.Id);
+
+                if (BuscaTema is null)
+                {
+                    return null;
+                }
+            }
+
+            produto.Categoria = produto.Categoria is not null ? _context.Categorias.FirstOrDefault(t => t.Id == produto.Categoria.Id) : null;
 
             _context.Entry(ProdutoUpdate).State = EntityState.Detached;
             _context.Entry(produto).State = EntityState.Modified;
