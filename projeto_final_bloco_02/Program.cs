@@ -1,5 +1,11 @@
+using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using projeto_final_bloco_02.Data;
+using projeto_final_bloco_02.Model;
+using projeto_final_bloco_02.Service.Implements;
+using projeto_final_bloco_02.Service;
+using projeto_final_bloco_02.Validator;
 using System;
 
 namespace projeto_final_bloco_02
@@ -14,6 +20,14 @@ namespace projeto_final_bloco_02
 
             builder.Services.AddControllers();
 
+            //Impedir loop infinito na descerialização do objeto
+            builder.Services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                    options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+                });
+
             //Conexão com o Banco de Dados 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -21,6 +35,12 @@ namespace projeto_final_bloco_02
             builder.Services.AddDbContext<AppDbContext>(options =>
                     options.UseSqlServer(connectionString)
             );
+
+            //Registrar a Validações das Entidades 
+            builder.Services.AddTransient<IValidator<Produto>, ProdutoValidator>();
+
+            //Registrar as Classes de Serviço (Service)
+            builder.Services.AddScoped<IProdutoService, ProdutoService>();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
